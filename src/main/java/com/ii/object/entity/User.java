@@ -1,27 +1,18 @@
 package com.ii.object.entity;
 
-import java.sql.Date;
 import java.util.UUID;
-
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.ColumnDefault;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.relational.core.sql.FalseCondition;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Getter @Setter
@@ -37,23 +28,34 @@ public class User extends Base {
 	
 	@Column(unique = true)
 	@NotNull
-	@Size(min=5, max=32)
-	private String username;
+	@Builder.Default
+	@Size(min=5, max=40)
+	private String username = "II_" + UUID.randomUUID();
 	
 	@Column(name = "hashed_password")
-	@NotNull
 	private String hashedPassword;
 	
 	@Column(unique = true)
-	@NotNull
 	@Email
 	private String email;
 	
+	@NotBlank
+	@Size(min=2, max=16)
 	@Builder.Default
-	private String role = "user";
+	private String nickname = "익명의 이파리";
+	
+	@Builder.Default
+	private String roles = "USER";
 	
 	@Column(name = "mail_auth")
 	@Builder.Default
-	private Boolean mailAuth = true;
+	private Boolean mailAuth = false;
+	
+	@Column(name = "user_type")
+	@Builder.Default
+	private String OAuth2Type = "Registerd";
+	
+	@Column(name = "oauth2_id")
+	private String OAuth2Id;
 	
 }

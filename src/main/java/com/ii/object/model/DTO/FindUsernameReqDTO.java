@@ -1,12 +1,10 @@
 package com.ii.object.model.DTO;
 
-import java.util.UUID;
-
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,12 +14,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class LoginPostDTO {
+public class FindUsernameReqDTO {
 
-	@NotEmpty
-	@Size(min=5, max=32)
-	private String username;
-	@NotEmpty
-	@Size(min=8, max=32)
-	private String password;
+	@NotBlank
+	@Email
+	@Size(min=8, max=320)
+	@Pattern(regexp = ".+@.+\\..+", message = "Email must contain a valid domain")
+	private String email;
+	
 }

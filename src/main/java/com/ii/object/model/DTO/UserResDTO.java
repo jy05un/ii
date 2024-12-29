@@ -2,11 +2,6 @@ package com.ii.object.model.DTO;
 
 import java.util.UUID;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Id;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,7 +11,7 @@ import lombok.Data;
 @Data
 public class UserResDTO {
 
-	private UUID id = UUID.randomUUID();
+	private UUID id;
 	
 	private String username;
 	

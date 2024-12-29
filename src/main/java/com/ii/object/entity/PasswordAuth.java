@@ -20,8 +20,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity(name = "mail_auth")
-public class MailAuth extends Base{
+@Entity(name = "password_auth")
+public class PasswordAuth extends Base{
 
 	@Id
 	@Builder.Default
@@ -35,5 +35,8 @@ public class MailAuth extends Base{
 	@Column(name = "auth_code")
 	@Builder.Default
 	private UUID authCode = UUID.randomUUID();
+	
+	@Column(name = "new_hashed_password")
+	private String newHashedPassword;
 	
 }

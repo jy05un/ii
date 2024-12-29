@@ -1,4 +1,4 @@
-package com.ii.config;
+package com.ii.config.security;
 
 import java.io.IOException;
 

@@ -2,6 +2,9 @@ package com.ii.object.entity;
 
 import java.util.UUID;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -26,11 +29,15 @@ public class PasswordHistory extends Base{
 	private UUID id = UUID.randomUUID();
 	
 	@ManyToOne
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	@JoinColumn(name = "user_id")
 	private User user;
 	
 	@Column(name = "hashed_password")
 	@NotNull
 	private String hashedPassword;
+	
+	@Builder.Default
+	private Integer trial = 0;
 	
 }

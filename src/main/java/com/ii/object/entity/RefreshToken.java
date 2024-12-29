@@ -1,5 +1,6 @@
 package com.ii.object.entity;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.hibernate.annotations.OnDelete;
@@ -10,6 +11,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,9 +22,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity(name = "mail_auth")
-public class MailAuth extends Base{
-
+@Entity(name = "refresh_token")
+public class RefreshToken extends Base {
+	
 	@Id
 	@Builder.Default
 	private UUID id = UUID.randomUUID();
@@ -32,8 +34,10 @@ public class MailAuth extends Base{
 	@JoinColumn(name = "user_id")
 	private User user;
 	
-	@Column(name = "auth_code")
-	@Builder.Default
-	private UUID authCode = UUID.randomUUID();
+	@Size(max = 512)
+	private String token;
+	
+	@Column(name = "expire_at")
+	private LocalDateTime expireAt;
 	
 }
