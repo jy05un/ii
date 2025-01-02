@@ -13,6 +13,4 @@ public class testController {
 		return "Hello";
 	}
 	
-	
-	
 }

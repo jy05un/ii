@@ -4,7 +4,11 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
+
+import com.ii.utils.AsyncMailSender;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -16,6 +20,7 @@ public class MailService {
 	
 	private final JavaMailSender javaMailSender;
     private static final String senderEmail = "ii.con.auth@gmail.com";
+    private final AsyncMailSender asyncMailSender;
     
     @Value("${app.base-url}")
     private final String baseUrl;
@@ -36,7 +41,7 @@ public class MailService {
     
     public void sendAuthMail(String mail, UUID auth_code) throws MessagingException {
         MimeMessage message = createAuthMail(mail, auth_code);
-        javaMailSender.send(message);
+        asyncMailSender.send(javaMailSender, message);
     }
     
     public MimeMessage createPasswordUpdateMail(String mail, UUID auth_code) throws MessagingException {
@@ -55,7 +60,7 @@ public class MailService {
     
     public void sendPasswordUpdateMail(String mail, UUID auth_code) throws MessagingException {
         MimeMessage message = createPasswordUpdateMail(mail, auth_code);
-        javaMailSender.send(message);
+        asyncMailSender.send(javaMailSender, message);
     }
     
     public MimeMessage createUsernameMail(String mail, String username) throws MessagingException {
@@ -74,7 +79,7 @@ public class MailService {
     
     public void sendUsernameMail(String mail, String username) throws MessagingException {
     	MimeMessage message = createUsernameMail(mail, username);
-    	javaMailSender.send(message);
+    	asyncMailSender.send(javaMailSender, message);
     }
     
     public MimeMessage createPasswordFindMail(String mail, String newPassword) throws MessagingException {
@@ -93,7 +98,7 @@ public class MailService {
     
     public void sendPasswordFindMail(String mail, String newPassword) throws MessagingException {
     	MimeMessage message = createPasswordFindMail(mail, newPassword);
-    	javaMailSender.send(message);
+    	asyncMailSender.send(javaMailSender, message);
     }
 
 }

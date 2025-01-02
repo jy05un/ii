@@ -68,32 +68,33 @@ public class AuthService {
 				.nickname(registerReqDTO.getNickname())
 				.hashedPassword(hashedPassword)
 				.build();
-		User createdUser = userRepository.save(user);
 		
 		MailAuth mailAuth = MailAuth.builder()
-				.user(createdUser)
+				.user(user)
 				.build();
-		mailAuthRepository.save(mailAuth);
 		
 		PasswordHistory passwordHistory = PasswordHistory.builder()
-				.user(createdUser)
+				.user(user)
 				.hashedPassword(hashedPassword)
 				.build();
-		passwordHistoryRepository.save(passwordHistory);
 		
 		RefreshToken refreshToken = RefreshToken.builder()
-				.user(createdUser)
+				.user(user)
 				.build();
-		refreshTokenRepository.save(refreshToken);
 		
-		mailService.sendAuthMail(createdUser.getEmail(), mailAuth.getAuthCode());
+		user.setMailAuth(mailAuth);
+		user.setRefreshToken(refreshToken);
+		user.addPasswordHistory(passwordHistory);
+		userRepository.save(user);
 		
-		RegisterResDTO registerResDTO = new RegisterResDTO(createdUser.getId(), createdUser.getUsername());
+		mailService.sendAuthMail(user.getEmail(), mailAuth.getAuthCode());
+		
+		RegisterResDTO registerResDTO = new RegisterResDTO(user.getId(), user.getUsername());
 		return registerResDTO;
 	}
 	
     @Transactional
-	public boolean mailAuth(UUID authCode) throws BadRequestException, MessagingException {
+	public void mailAuth(UUID authCode) throws BadRequestException, MessagingException {
 		LocalDateTime now = LocalDateTime.now();
 		MailAuth mailAuth = mailAuthRepository.findByAuthCode(authCode);
 		if(mailAuth == null) {
@@ -103,20 +104,20 @@ public class AuthService {
 			mailAuth.setAuthCode(UUID.randomUUID());
 			mailAuthRepository.save(mailAuth); // 새로운 인증 UUID 생성
 			mailService.sendPasswordUpdateMail(null, authCode);
-			return false;
+			throw new BadRequestException("인증코드 만료! 재전송...");
 		}
 		User authUser = mailAuth.getUser();
-		authUser.setMailAuth(true);
+		authUser.setIsMailAuthed(true);
 		userRepository.save(authUser);
 		mailAuthRepository.delete(mailAuth);
-		return true;		
+		return;
 	}
 	
 	public Pair<String, String> login(LoginReqDTO loginReqDTO){
 		
 		User user = userRepository.findByUsername(loginReqDTO.getUsername());
 		if(user == null) throw new UsernameNotFoundException("그런 사용자 없음");
-		if(!user.getMailAuth()) throw new BadCredentialsException("메일 인증 좀");
+		if(!user.getIsMailAuthed()) throw new BadCredentialsException("메일 인증 좀");
 		if(!passwordEncoder.matches(loginReqDTO.getPassword(), user.getHashedPassword())) throw new BadCredentialsException("비밀번호 틀림 ㅅㄱ");
 		
 		String accessTokenString = tokenProvider.generateAccessToken(user.getUsername(), user.getRoles());
@@ -126,7 +127,7 @@ public class AuthService {
 		
 		String refreshTokenString = tokenProvider.generateRefreshToken(user.getUsername());
 		
-		RefreshToken refreshToken = refreshTokenRepository.getByuserUsername(user.getUsername());
+		RefreshToken refreshToken = user.getRefreshToken();
 		refreshToken.setToken(refreshTokenString);
 		refreshTokenRepository.save(refreshToken);
 		
@@ -142,7 +143,6 @@ public class AuthService {
 		} catch(ExpiredJwtException e) {
 			
 		}
-		
 		
 		String refreshTokenString = null;
 		Cookie[] cookies = request.getCookies();
@@ -164,7 +164,7 @@ public class AuthService {
 		
 		String newRefreshTokenString = tokenProvider.generateRefreshToken(user.getUsername());
 		
-		RefreshToken refreshToken = refreshTokenRepository.getByToken(refreshTokenString);
+		RefreshToken refreshToken = user.getRefreshToken();
 		refreshToken.setToken(newRefreshTokenString);
 		refreshTokenRepository.save(refreshToken);
 		
@@ -186,7 +186,7 @@ public class AuthService {
 			throw new BadCredentialsException("비밀번호 불일치");
 		}
 		me.setEmail(updateEmailReqDTO.getEmail());
-		me.setMailAuth(false);
+		me.setIsMailAuthed(false);
 		MailAuth mailAuth = MailAuth.builder()
 				.user(me)
 				.build();
@@ -203,7 +203,7 @@ public class AuthService {
 		if(!passwordEncoder.matches(updatePasswordReqDTO.getOldPassword(), me.getHashedPassword())) {
 			throw new BadCredentialsException("비밀번호 불일치");
 		}
-		PasswordHistory passwordHistory = passwordHistoryRepository.findByUser(me);
+		PasswordHistory passwordHistory = me.getPasswordHistories().getLast();
 		if(passwordHistory == null) throw new BadRequestException("비밀번호 기록이 왜 없노?");
 		if(passwordEncoder.matches(updatePasswordReqDTO.getNewPassword(), passwordHistory.getHashedPassword())) {
 			throw new BadRequestException("임마는 비밀번호를 같은걸로 변경 할라하노");
@@ -232,9 +232,8 @@ public class AuthService {
 			mailService.sendAuthMail(me.getEmail(), passwordAuth.getAuthCode());
 			return;
 		}
-		PasswordHistory passwordHistory = passwordHistoryRepository.findByUser(me);
+		PasswordHistory passwordHistory = me.getPasswordHistories().getLast();
 		passwordHistory.setHashedPassword(passwordAuth.getNewHashedPassword());
-		passwordHistoryRepository.save(passwordHistory);
 		me.setHashedPassword(passwordAuth.getNewHashedPassword());
 		userRepository.save(me);
 		passwordAuthRepository.delete(passwordAuth);
@@ -260,7 +259,7 @@ public class AuthService {
 		if(me == null) {
 			throw new BadRequestException("해당 username을 사용하는 사용자를 찾을 수 없습니다.");
 		}
-		if(!me.getMailAuth()) {
+		if(!me.getIsMailAuthed()) {
 			throw new BadRequestException("님아 메일 인증부터 좀 하셈.");
 		}
 		String newPassword = SecurityUtil.generateSecureString();

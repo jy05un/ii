@@ -50,7 +50,7 @@ public class CustomOAuth2UserSerivce extends DefaultOAuth2UserService {
 			User newUser = User.builder()
 					.OAuth2Id(oAuth2UserId)
 					.OAuth2Type(registrationId)
-					.mailAuth(true)
+					.isMailAuthed(true)
 					.build();
 			RefreshToken refreshToken = RefreshToken.builder()
 					.user(newUser)

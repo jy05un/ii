@@ -1,13 +1,10 @@
 package com.ii.controller;
 
-import java.nio.charset.Charset;
 import java.security.SignatureException;
 import java.util.UUID;
 
 import org.apache.coyote.BadRequestException;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -29,10 +26,8 @@ import com.ii.object.model.DTO.UpdatePasswordReqDTO;
 import com.ii.object.model.common.Response;
 import com.ii.service.AuthService;
 import com.ii.utils.ResponseUtil;
-import com.ii.utils.SecurityUtil;
 import com.nimbusds.jose.util.Pair;
 
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -47,16 +42,11 @@ public class AuthController {
 
 	@PostMapping("/register")
 	public ResponseEntity<Response> register(@RequestBody @Valid RegisterReqDTO registerReqDTO) {
-		Response response;
 		try {
-			response = new Response(HttpStatus.OK, "registered", authService.register(registerReqDTO));
+			return ResponseUtil.build(HttpStatus.OK, "registered", authService.register(registerReqDTO));
 		} catch (MessagingException e) {
-			response = new Response(HttpStatus.INTERNAL_SERVER_ERROR, "mail not served", null);
+			return ResponseUtil.build(HttpStatus.INTERNAL_SERVER_ERROR, "인증 메일 전송 실패!", null);
 		}
-		
-		HttpHeaders headers= new HttpHeaders();
-        headers.setContentType(new MediaType("application", "json", Charset.forName("UTF-8")));
-		return new ResponseEntity<>(response, headers, HttpStatus.OK);
 	}
 	
 	@GetMapping("/email")
@@ -65,9 +55,9 @@ public class AuthController {
 			authService.mailAuth(authCode);
 			return ResponseUtil.build(HttpStatus.OK, "메일 인증됨", null);
 		} catch(MessagingException e) {
-			return ResponseUtil.build(HttpStatus.INTERNAL_SERVER_ERROR, "인증 메일 재전송 실패!", null);
+			return ResponseUtil.build(HttpStatus.INTERNAL_SERVER_ERROR, "인증 메일 구성 실패!", null);
 		} catch(BadRequestException e) {
-			return ResponseUtil.build(HttpStatus.BAD_REQUEST, "요청이 뭔가 이상하네요...", null);
+			return ResponseUtil.build(HttpStatus.BAD_REQUEST, e.getMessage(), null);
 		}
 	}
 	
@@ -76,13 +66,7 @@ public class AuthController {
 		
 		Pair<String, String> tokenPair = authService.login(loginReqDto);
 		
-		Response response = new Response(HttpStatus.OK, "login success, jwt successfully provided", null);
-		
-		HttpHeaders headers= new HttpHeaders();
-		headers.add(SecurityUtil.AUTHORIZATION_HEADER, "Bearer: " + tokenPair.getLeft());
-		headers.add(HttpHeaders.SET_COOKIE, SecurityUtil.parseRefreshCookie(tokenPair.getRight()));
-        headers.setContentType(new MediaType("application", "json", Charset.forName("UTF-8")));
-		return new ResponseEntity<>(response, headers, HttpStatus.OK);
+		return ResponseUtil.build(HttpStatus.OK, "login success, jwt successfully provided", null, tokenPair.getLeft(), tokenPair.getRight());
 	}
 	
 	@PostMapping("/refresh")
@@ -90,18 +74,9 @@ public class AuthController {
 		
 		try {
 			Pair<String, String> tokenPair = authService.refresh(request);
-			Response response = new Response(HttpStatus.OK, "refresh success, jwt successfully provided", null);
-			
-			HttpHeaders headers= new HttpHeaders();
-			headers.add(SecurityUtil.AUTHORIZATION_HEADER, "Bearer: " + tokenPair.getLeft());
-			headers.add(HttpHeaders.SET_COOKIE, SecurityUtil.parseRefreshCookie(tokenPair.getRight()));
-	        headers.setContentType(new MediaType("application", "json", Charset.forName("UTF-8")));
-	        return new ResponseEntity<>(response, headers, HttpStatus.OK);
+			return ResponseUtil.build(HttpStatus.OK, "refresh success, jwt successfully provided", null, tokenPair.getLeft(), tokenPair.getRight());
 		} catch (BadRequestException e) {
-			Response response = new Response(HttpStatus.BAD_REQUEST, "bad request!", null);
-			HttpHeaders headers= new HttpHeaders();
-	        headers.setContentType(new MediaType("application", "json", Charset.forName("UTF-8")));
-	        return new ResponseEntity<>(response, headers, HttpStatus.BAD_REQUEST);
+			return ResponseUtil.build(HttpStatus.BAD_REQUEST, e.getMessage(), null);
 		} catch (SignatureException e) {
 			return ResponseUtil.build(HttpStatus.BAD_REQUEST, "Access Token Error!", null);
 		}
@@ -129,7 +104,7 @@ public class AuthController {
 			authService.updateEmail(updateEmailReqDTO);
 			return ResponseUtil.build(HttpStatus.NO_CONTENT, "메일 변경됨", null);
 		} catch(MessagingException e) {
-			return ResponseUtil.build(HttpStatus.INTERNAL_SERVER_ERROR, "인증 메일 전송 실패!", null);
+			return ResponseUtil.build(HttpStatus.INTERNAL_SERVER_ERROR, "인증 메일 구성 실패!", null);
 		} catch(IllegalArgumentException e) {
 			return ResponseUtil.build(HttpStatus.BAD_REQUEST, "요청이 뭔가 이상하네요...", null);
 		} catch (BadCredentialsException e) {
@@ -146,7 +121,7 @@ public class AuthController {
 			authService.updatePassword(udpatePasswordReqDTO);
 			return ResponseUtil.build(HttpStatus.NO_CONTENT, "메일 변경됨", null);
 		} catch(MessagingException e) {
-			return ResponseUtil.build(HttpStatus.INTERNAL_SERVER_ERROR, "인증 메일 전송 실패!", null);
+			return ResponseUtil.build(HttpStatus.INTERNAL_SERVER_ERROR, "인증 메일 구성 실패!", null);
 		} catch(IllegalArgumentException e) {
 			return ResponseUtil.build(HttpStatus.BAD_REQUEST, "요청이 뭔가 이상하네요...", null);
 		} catch (BadCredentialsException e) {
@@ -163,7 +138,7 @@ public class AuthController {
 			authService.passwordMailAuth(authCode);
 			return ResponseUtil.build(HttpStatus.OK, "메일 인증됨", null);
 		} catch(MessagingException e) {
-			return ResponseUtil.build(HttpStatus.INTERNAL_SERVER_ERROR, "인증 메일 재전송 실패!", null);
+			return ResponseUtil.build(HttpStatus.INTERNAL_SERVER_ERROR, "인증 메일 구성 실패!", null);
 		} catch(BadRequestException e) {
 			return ResponseUtil.build(HttpStatus.BAD_REQUEST, "요청이 뭔가 이상하네요...", null);
 		}
@@ -176,7 +151,7 @@ public class AuthController {
 			authService.findUsername(findUsernameReqDTO);
 			return ResponseUtil.build(HttpStatus.OK, "메일로 사용자 이름 전송됨", null);
 		} catch(MessagingException e) {
-			return ResponseUtil.build(HttpStatus.INTERNAL_SERVER_ERROR, "인증 메일 재전송 실패!", null);
+			return ResponseUtil.build(HttpStatus.INTERNAL_SERVER_ERROR, "인증 메일 구성 실패!", null);
 		} catch(BadRequestException e) {
 			return ResponseUtil.build(HttpStatus.BAD_REQUEST, e.getMessage(), null);
 		}
@@ -190,7 +165,7 @@ public class AuthController {
 			authService.findPassword(findPasswordReqDTO);
 			return ResponseUtil.build(HttpStatus.OK, "메일로 비밀번호 전송됨", null);
 		} catch(MessagingException e) {
-			return ResponseUtil.build(HttpStatus.INTERNAL_SERVER_ERROR, "인증 메일 재전송 실패!", null);
+			return ResponseUtil.build(HttpStatus.INTERNAL_SERVER_ERROR, "인증 메일 구성 실패!", null);
 		} catch(BadRequestException e) {
 			return ResponseUtil.build(HttpStatus.BAD_REQUEST, e.getMessage(), null);
 		}

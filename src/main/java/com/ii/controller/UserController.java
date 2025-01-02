@@ -1,10 +1,6 @@
 package com.ii.controller;
 
-import java.nio.charset.Charset;
-
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,11 +43,7 @@ public class UserController {
 				.email(me.getEmail())
 				.role(me.getRoles())
 				.build();
-		Response response = new Response(HttpStatus.OK, "registered", userResDTO);
-		
-		HttpHeaders headers= new HttpHeaders();
-        headers.setContentType(new MediaType("application", "json", Charset.forName("UTF-8")));
-		return new ResponseEntity<>(response, headers, HttpStatus.OK);
+		return ResponseUtil.build(HttpStatus.OK, "get user", userResDTO);
 	}
 	
 	@GetMapping("/users/exists/{username}")

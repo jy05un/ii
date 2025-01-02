@@ -22,7 +22,7 @@ public class UserService {
 		User me = userRepository.findByUsername(SecurityUtil.getCurrentUsername()
 				.orElseThrow(() -> new IllegalArgumentException("로그인 정보 없는데 어캐 접근했음?")));
 		me.setNickname(updateUserNicknameReqDTO.getNickname());
-		userRepository.save(me);		
+		userRepository.save(me);
 		
 	}
 

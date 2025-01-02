@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -28,8 +29,8 @@ public class MailAuth extends Base{
 	private UUID id = UUID.randomUUID();
 	
 	@OneToOne
-	@OnDelete(action = OnDeleteAction.CASCADE)
 	@JoinColumn(name = "user_id")
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	private User user;
 	
 	@Column(name = "auth_code")

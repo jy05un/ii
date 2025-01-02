@@ -29,7 +29,7 @@ public class CustomUserDetailsService implements UserDetailsService { // 메일 
 		User user = userRepository.findByUsername(username); // username 기준으로 유저 탐색
 		if(user == null) throw new UsernameNotFoundException("Could not found user: " + username); // 유저가 null(=존재하지 않음)이면 유저없음 에러 발생
 		
-		if(!user.getMailAuth()) throw new IllegalArgumentException("Mail Auth Not Completed Yet!"); // 유저가 메일 인증이 안되어있으면 에러 발생
+		if(!user.getIsMailAuthed()) throw new IllegalArgumentException("Mail Auth Not Completed Yet!"); // 유저가 메일 인증이 안되어있으면 에러 발생
 		
 		return org.springframework.security.core.userdetails.User.builder()
 				.username(user.getUsername())
