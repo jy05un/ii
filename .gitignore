@@ -6,7 +6,11 @@ build/
 !**/src/test/**/build/
 
 ### STS ###
+<<<<<<< HEAD
 .apt_generated
+=======
+.apt_generated*
+>>>>>>> features/register
 .classpath
 .factorypath
 .project
@@ -37,4 +41,12 @@ out/
 .vscode/
 
 ### .properties ###
+<<<<<<< HEAD
 **/application.properties
+=======
+**/application.properties
+**/application.yml
+
+### logs ###
+logs
+>>>>>>> features/register
