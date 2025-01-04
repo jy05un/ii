@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO">
+	<Properties>
+		<Property name="LOG_PATTERN_CONSOLE">
+			%style{%d{yyyy-MM-dd HH:mm:ss.SSS}}{cyan} [%style{%t}{green}] %highlight{%-5level}{FATAL=red bold, ERROR=red, WARN=yellow, INFO=green, DEBUG=blue, TRACE=magenta} %style{%logger{36}}{cyan} [%F:%L] - %msg%n
+		</Property>
+		<Property name="LOG_PATTERN_FILE">
+			%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} [%F:%L] - %msg%n
+		</Property>
+	</Properties>
+	<Appenders>
+		<Console name="Console_Appender" target="SYSTEM_OUT">
+			<PatternLayout disableAnsi="false">
+				<pattern>${LOG_PATTERN_CONSOLE}</pattern>
+			</PatternLayout>
+		</Console>
+		<RollingFile name="File_Appender" filePattern="logs/%d{yyyy-MM-dd}-app.log">
+			<PatternLayout>
+				<pattern>${LOG_PATTERN_FILE}</pattern>
+			</PatternLayout>
+			<Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+		</RollingFile>
+	</Appenders>
+	<Loggers>
+		<Root level="WARN" additivity="false">
+			<AppenderRef ref="Console_Appender" />
+			<AppenderRef ref="File_Appender" />
+		</Root>
+		
+		<Logger name="org.springframework" level="ERROR" additivity="false">
+            <AppenderRef ref="Console_Appender" />
+            <AppenderRef ref="File_Appender" />
+        </Logger>
+        
+        <Logger name="com.ii.config.CustomRequestLoggingFilter" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console_Appender" />
+            <AppenderRef ref="File_Appender" />
+        </Logger>
+        
+        <Logger name="com.ii.config.security.JwtFilter" level="INFO" additivity="false">
+            <AppenderRef ref="Console_Appender" />
+            <AppenderRef ref="File_Appender" />
+        </Logger>
+        
+        <Logger name="com.ii" level="INFO" additivity="false">
+            <AppenderRef ref="Console_Appender" />
+            <AppenderRef ref="File_Appender" />
+        </Logger>
+        
+        <!-- log4jdbc 옵션 설정 -->
+		<Logger name="jdbc" level="OFF"/>
+		<!-- 커넥션 open close 이벤트를 로그로 남긴다. -->
+		<Logger name="jdbc.connection" level="OFF"/>
+		<!-- SQL문만을 로그로 남기며, PreparedStatement일 경우 관련된 argument 값으로 대체된 SQL문이 보여진다. -->
+		<Logger name="jdbc.sqlonly" level="WARN"/>
+		<!-- SQL문과 해당 SQL을 실행시키는데 수행된 시간 정보(milliseconds)를 포함한다. -->
+		<Logger name="jdbc.sqltiming" level="OFF"/>
+		<!-- ResultSet을 제외한 모든 JDBC 호출 정보를 로그로 남긴다. 많은 양의 로그가 생성되므로 특별히 JDBC 문제를 추적해야 할 필요가 있는 경우를 제외하고는 사용을 권장하지 않는다. -->
+		<Logger name="jdbc.audit" level="OFF"/>
+		<!-- ResultSet을 포함한 모든 JDBC 호출 정보를 로그로 남기므로 매우 방대한 양의 로그가 생성된다. -->
+		<Logger name="jdbc.resultset" level="OFF"/>
+		<!-- SQL 결과 조회된 데이터의 table을 로그로 남긴다. -->
+		<Logger name="jdbc.resultsettable" level="OFF"/>
+        
+	</Loggers>
+</Configuration>
