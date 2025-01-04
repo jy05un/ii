@@ -40,33 +40,33 @@ public class User extends Base {
 	@NotNull
 	@Builder.Default
 	@Size(min=5, max=40)
-	private String username = "II_" + UUID.randomUUID();
+	private String username = "II_" + UUID.randomUUID();	// oauth2 로그인 유저의 경우 최초 로그인시 username을 II_{UUID} 형태로 생성함
 	
 	@Column(name = "hashed_password")
-	private String hashedPassword;
+	private String hashedPassword;	// 해시된 비밀번호
 	
 	@Column(unique = true)
 	@Email
-	private String email;
+	private String email;	// unique한 이메일
 	
 	@NotBlank
 	@Size(min=2, max=16)
 	@Builder.Default
-	private String nickname = "익명의 이파리";
+	private String nickname = "익명의 이파리";	// 기본 닉네임
 	
 	@Builder.Default
-	private String roles = "USER";
+	private String roles = "USER";	// 기본 권한 USER
 	
 	@Column(name = "is_mail_authed")
 	@Builder.Default
-	private Boolean isMailAuthed = false;
+	private Boolean isMailAuthed = false;	// 기본 생성 시 메일인증 안된 상태
 	
 	@Column(name = "user_type")
 	@Builder.Default
-	private String OAuth2Type = "Registerd";
+	private String OAuth2Type = "Registered";	// oauth2 로그인 유저는 Naver로, 회원가입한 유저는 Registered로 등록됨
 	
 	@Column(name = "oauth2_id")
-	private String OAuth2Id;
+	private String OAuth2Id;	// oauth2 로그인 유저의 id (naver 제공)
 
 	@OneToOne(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
 	private MailAuth mailAuth;
@@ -77,10 +77,8 @@ public class User extends Base {
 	@OneToOne(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
 	private RefreshToken refreshToken;
 	
-	@OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
-	@OrderBy("created_at ASC")
-	@Builder.Default
-	private List<PasswordHistory> passwordHistories = new ArrayList<>();
+	@OneToOne(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
+	private PasswordHistory passwordHistory;
 	
 	public void setMailAuth(MailAuth mailAuth) {
 		this.mailAuth = mailAuth;
@@ -97,8 +95,8 @@ public class User extends Base {
 		refreshToken.setUser(this);
 	}
 	
-	public void addPasswordHistory(PasswordHistory passwordHistory) {
-		this.passwordHistories.add(passwordHistory);
+	public void setPasswordHistory(PasswordHistory passwordHistory) {
+		this.passwordHistory = passwordHistory;
 		passwordHistory.setUser(this);
 	}
 	

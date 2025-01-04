@@ -21,6 +21,7 @@ public class OAuth2FailureHandler implements AuthenticationFailureHandler {
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException exception) throws IOException, ServletException {
 
+		// oauth2 로그인 실패 시 401 반환
 		response.setContentType("application/json");
 		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 		Response responseJSON = new Response(HttpStatus.UNAUTHORIZED, "Login Failed", null);

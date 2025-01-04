@@ -23,6 +23,10 @@ import lombok.Setter;
 @Builder
 @Entity(name = "mail_auth")
 public class MailAuth extends Base{
+	
+	/*
+	 * 회원가입 시 메일 인증 과정 중 인증코드를 저장하기 위한 테이블
+	 */
 
 	@Id
 	@Builder.Default
@@ -35,6 +39,6 @@ public class MailAuth extends Base{
 	
 	@Column(name = "auth_code")
 	@Builder.Default
-	private UUID authCode = UUID.randomUUID();
+	private UUID authCode = UUID.randomUUID();	// 생성된 UUID는 url에 담겨 인증url로 쓰임
 	
 }

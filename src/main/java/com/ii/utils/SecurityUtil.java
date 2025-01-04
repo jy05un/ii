@@ -90,14 +90,14 @@ public class SecurityUtil {
         return null;
     }
 	
-	public static String parseRefreshCookie(String refreshToken) {
+	public static String parseRefreshCookie(String refreshToken, int validityInDays) {
 		ResponseCookie cookie = ResponseCookie
 				.from("Refresh", refreshToken)
 				.domain("localhost")
 				.httpOnly(true)
 				.secure(false)
 				// .secure(true)
-				.maxAge(Duration.ofHours(12))
+				.maxAge(Duration.ofDays(validityInDays))
 				.build();
 		return cookie.toString();
 	}

@@ -4,6 +4,7 @@ import java.security.SignatureException;
 import java.util.UUID;
 
 import org.apache.coyote.BadRequestException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -40,15 +41,19 @@ public class AuthController {
 	
 	private final AuthService authService;
 
+	// 회원가입
 	@PostMapping("/register")
 	public ResponseEntity<Response> register(@RequestBody @Valid RegisterReqDTO registerReqDTO) {
 		try {
 			return ResponseUtil.build(HttpStatus.OK, "registered", authService.register(registerReqDTO));
 		} catch (MessagingException e) {
 			return ResponseUtil.build(HttpStatus.INTERNAL_SERVER_ERROR, "인증 메일 전송 실패!", null);
+		} catch(DataIntegrityViolationException e) {
+			return ResponseUtil.build(HttpStatus.BAD_REQUEST, e.getMessage(), null);
 		}
 	}
 	
+	// 회원가입 시 이메일 인증
 	@GetMapping("/email")
 	public ResponseEntity<Response> mailAuth(@RequestParam(required = true, name="authCode") UUID authCode) {
 		try {
@@ -61,6 +66,7 @@ public class AuthController {
 		}
 	}
 	
+	// 로그인
 	@PostMapping("/login")
 	public ResponseEntity<Response> login(@RequestBody @Valid LoginReqDTO loginReqDto) {
 		
@@ -69,6 +75,7 @@ public class AuthController {
 		return ResponseUtil.build(HttpStatus.OK, "login success, jwt successfully provided", null, tokenPair.getLeft(), tokenPair.getRight());
 	}
 	
+	// Refresh Token을 이용한 Access & Refresh Token 재발급
 	@PostMapping("/refresh")
 	public ResponseEntity<Response> refresh(HttpServletRequest request) {
 		
@@ -83,6 +90,22 @@ public class AuthController {
 		
 	}
 	
+	// 로그아웃
+	@GetMapping("/logout")
+	@PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+	public ResponseEntity<Response> logout() {
+		
+		try {
+			authService.logout();
+			return ResponseUtil.build(HttpStatus.OK, "Log out complete", null, null, null);
+			// Access & Refresh Token 값을 null로 주어서 클라이언트의 Authorization Header와 Cookie 삭제
+		} catch (BadRequestException e) {
+			return ResponseUtil.build(HttpStatus.BAD_REQUEST, e.getMessage(), null);
+		}
+		
+	}
+	
+	// 회원탈퇴
 	@DeleteMapping("/unregister")
 	@PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
 	public ResponseEntity<Response> unregister(HttpServletRequest request) {
@@ -96,6 +119,7 @@ public class AuthController {
 		
 	}
 	
+	// 이메일 변경
 	@PutMapping("/email")
 	@PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
 	public ResponseEntity<Response> updateEmail(@RequestBody @Valid UpdateEmailReqDTO updateEmailReqDTO) throws BadRequestException {
@@ -109,10 +133,13 @@ public class AuthController {
 			return ResponseUtil.build(HttpStatus.BAD_REQUEST, "요청이 뭔가 이상하네요...", null);
 		} catch (BadCredentialsException e) {
 			return ResponseUtil.build(HttpStatus.BAD_REQUEST, "비밀번호 불일치", null);
+		} catch(DataIntegrityViolationException e) {
+			return ResponseUtil.build(HttpStatus.BAD_REQUEST, e.getMessage(), null);
 		}
 		
 	}
 	
+	// 비밀번호 변경
 	@PostMapping("/password/update")
 	@PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
 	public ResponseEntity<Response> updatePassword(@RequestBody @Valid UpdatePasswordReqDTO udpatePasswordReqDTO) throws BadRequestException {
@@ -132,6 +159,7 @@ public class AuthController {
 		
 	}
 	
+	// 비밀번호 변경 시 메일 인증
 	@GetMapping("/password/update")
 	public ResponseEntity<Response> passwordMailAuth(@RequestParam(required = true, name="authCode") UUID authCode) {
 		try {
@@ -144,6 +172,7 @@ public class AuthController {
 		}
 	}
 	
+	// 유저네임 찾기
 	@PostMapping("/username/find")
 	public ResponseEntity<Response> findUsername(@RequestBody @Valid FindUsernameReqDTO findUsernameReqDTO) {
 		
@@ -158,6 +187,7 @@ public class AuthController {
 		
 	}
 	
+	// 비밀번호 찾기
 	@PostMapping("/password/find")
 	public ResponseEntity<Response> findPassword(@RequestBody @Valid FindPasswordReqDTO findPasswordReqDTO) {
 		
@@ -167,6 +197,8 @@ public class AuthController {
 		} catch(MessagingException e) {
 			return ResponseUtil.build(HttpStatus.INTERNAL_SERVER_ERROR, "인증 메일 구성 실패!", null);
 		} catch(BadRequestException e) {
+			return ResponseUtil.build(HttpStatus.BAD_REQUEST, e.getMessage(), null);
+		} catch(DataIntegrityViolationException e) {
 			return ResponseUtil.build(HttpStatus.BAD_REQUEST, e.getMessage(), null);
 		}
 		

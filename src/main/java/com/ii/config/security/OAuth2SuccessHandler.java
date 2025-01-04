@@ -19,6 +19,7 @@ import com.ii.utils.SecurityUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -28,26 +29,32 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 	private final TokenProvider tokenProvider;
 	private final IRefreshTokenRepository refreshTokenRepository;
 	
+	@Transactional
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws IOException, ServletException {
 
+		// oauth2 로그인 성공시 인증정보를 OAuth2UserDetails 클래스에 담음
 		OAuth2UserDetails oAuth2User = (OAuth2UserDetails) authentication.getPrincipal();
 		
+		// AccessTokenString 생성
 		String accessTokenString = tokenProvider.generateAccessToken(oAuth2User.getUsername(), oAuth2User.getRoles());
+		// SecurityContext에 저장하기 위한 인증정보를 가져옴
 		UsernamePasswordAuthenticationToken accessAuthenticationToken = tokenProvider.getAuthentication(accessTokenString);
 		SecurityContextHolder.getContext().setAuthentication(accessAuthenticationToken);
 		
+		// RefreshTokenString 생성
 		String refreshTokenString = tokenProvider.generateRefreshToken(oAuth2User.getUsername());
 		
-		RefreshToken refreshToken = refreshTokenRepository.getByuserUsername(oAuth2User.getUsername());
+		// RefreshToken 저장소에서 RefreshToken 최신화
+		RefreshToken refreshToken = refreshTokenRepository.findByuserUsername(oAuth2User.getUsername());
 		refreshToken.setToken(refreshTokenString);
 		refreshTokenRepository.save(refreshToken);
-//		
-//		return Pair.of(accessTokenString, newRefreshTokenString);
 		
+		// 응답 헤더 중 Authorization에 AccessToken을 담음
 		response.addHeader(SecurityUtil.AUTHORIZATION_HEADER, "Bearer: " + accessTokenString);
-		response.addHeader(HttpHeaders.SET_COOKIE, SecurityUtil.parseRefreshCookie(refreshTokenString));
+		// RefreshToken을 쿠키로 설정
+		response.addHeader(HttpHeaders.SET_COOKIE, SecurityUtil.parseRefreshCookie(refreshTokenString, 15));
 		response.setContentType("application/json");
 		response.setStatus(HttpServletResponse.SC_OK);
 		Response responseJSON = new Response(HttpStatus.OK, "login success, jwt successfully provided", null);
@@ -55,7 +62,6 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 		response.getWriter().write(resJSONString);
 		
 		return;
-		
 		
 	}
 

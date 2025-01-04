@@ -16,11 +16,12 @@ public class ResponseUtil {
 	public static ResponseEntity<Response> build(HttpStatus httpStatus, String msg, Object body,
 			String accessTokenString, String refreshTokenString) {
 		Response response = new Response(httpStatus, msg, body);
-		
+		int validyInDays = 15;
+		if(refreshTokenString == null) validyInDays = 0;
 		HttpHeaders httpHeaders= new HttpHeaders();
 		httpHeaders.setContentType(new MediaType("application", "json", Charset.forName("UTF-8")));
 		httpHeaders.add(SecurityUtil.AUTHORIZATION_HEADER, "Bearer: " + accessTokenString);
-		httpHeaders.add(HttpHeaders.SET_COOKIE, SecurityUtil.parseRefreshCookie(refreshTokenString));
+		httpHeaders.add(HttpHeaders.SET_COOKIE, SecurityUtil.parseRefreshCookie(refreshTokenString, validyInDays));
 		return new ResponseEntity<>(response, httpHeaders, httpStatus);
 	}
 	

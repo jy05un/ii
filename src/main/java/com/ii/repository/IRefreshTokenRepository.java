@@ -15,8 +15,8 @@ public interface IRefreshTokenRepository extends JpaRepository<RefreshToken, UUI
 	@Transactional
 	void deleteByToken(String token);
 
-	RefreshToken getByuserUsername(String username);
+	RefreshToken findByuserUsername(String username);
 
-	RefreshToken getByToken(String token);
+	RefreshToken findByToken(String token);
 	
 }

@@ -19,16 +19,16 @@ import lombok.RequiredArgsConstructor;
 public class MailService {
 	
 	private final JavaMailSender javaMailSender;
-    private static final String senderEmail = "ii.con.auth@gmail.com";
+    private final String SENDER_EMAIL = "ii.con.auth@gmail.com";
     private final AsyncMailSender asyncMailSender;
     
-    @Value("${app.base-url}")
-    private final String baseUrl;
+    @Value("${app.base-uri}")
+    private String baseUrl;
 
     public MimeMessage createAuthMail(String mail, UUID auth_code) throws MessagingException {
     	MimeMessage message = javaMailSender.createMimeMessage();
     	
-    	message.setFrom(senderEmail);
+    	message.setFrom(SENDER_EMAIL);
         message.setRecipients(MimeMessage.RecipientType.TO, mail);
         message.setSubject("II 서비스 이메일 인증 요청");
         String body = "";
@@ -47,7 +47,7 @@ public class MailService {
     public MimeMessage createPasswordUpdateMail(String mail, UUID auth_code) throws MessagingException {
     	MimeMessage message = javaMailSender.createMimeMessage();
     	
-    	message.setFrom(senderEmail);
+    	message.setFrom(SENDER_EMAIL);
         message.setRecipients(MimeMessage.RecipientType.TO, mail);
         message.setSubject("II 서비스 이메일 인증 요청");
         String body = "";
@@ -66,7 +66,7 @@ public class MailService {
     public MimeMessage createUsernameMail(String mail, String username) throws MessagingException {
     	MimeMessage message = javaMailSender.createMimeMessage();
     	
-    	message.setFrom(senderEmail);
+    	message.setFrom(SENDER_EMAIL);
         message.setRecipients(MimeMessage.RecipientType.TO, mail);
         message.setSubject("II 서비스 사용자 이름 찾기");
         String body = "";
@@ -85,7 +85,7 @@ public class MailService {
     public MimeMessage createPasswordFindMail(String mail, String newPassword) throws MessagingException {
     	MimeMessage message = javaMailSender.createMimeMessage();
     	
-    	message.setFrom(senderEmail);
+    	message.setFrom(SENDER_EMAIL);
         message.setRecipients(MimeMessage.RecipientType.TO, mail);
         message.setSubject("II 패스워드 찾기");
         String body = "";

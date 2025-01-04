@@ -12,11 +12,16 @@ import lombok.Data;
 @MappedSuperclass
 @Data
 public abstract class Base {
+	
+	/*
+	 * BaseEntity
+	 * created_at과 updated_at 필드를 남김
+	 */
 
     @Column(updatable = false)
     @CreationTimestamp
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt;	// 생성 시각
     
     @UpdateTimestamp
-    private LocalDateTime updatedAt;
+    private LocalDateTime updatedAt;	// 마지막 업데이트 시각
 }

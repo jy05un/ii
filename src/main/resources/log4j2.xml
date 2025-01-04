@@ -24,7 +24,7 @@
 		</RollingFile>
 	</Appenders>
 	<Loggers>
-		<Root level="INFO" additivity="false">
+		<Root level="WARN" additivity="false">
 			<AppenderRef ref="Console_Appender" />
 			<AppenderRef ref="File_Appender" />
 		</Root>
@@ -35,6 +35,11 @@
         </Logger>
         
         <Logger name="com.ii.config.CustomRequestLoggingFilter" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console_Appender" />
+            <AppenderRef ref="File_Appender" />
+        </Logger>
+        
+        <Logger name="com.ii.config.security.JwtFilter" level="INFO" additivity="false">
             <AppenderRef ref="Console_Appender" />
             <AppenderRef ref="File_Appender" />
         </Logger>

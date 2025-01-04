@@ -40,7 +40,4 @@ public class RefreshToken extends Base {
 	@Size(max = 512)
 	private String token;
 	
-	@Column(name = "expire_at")
-	private LocalDateTime expireAt;
-	
 }
