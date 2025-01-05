@@ -13,6 +13,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -32,12 +33,16 @@ public class RefreshToken extends Base {
 	@GeneratedValue(strategy = GenerationType.UUID)
 	private UUID id;
 	
-	@OneToOne
+	@ManyToOne
 	@JoinColumn(name = "user_id")
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private User user;
 	
 	@Size(max = 512)
 	private String token;
+	
+	@Column(name = "device_id")
+	@Builder.Default
+	private UUID deviceId = UUID.randomUUID();
 	
 }
