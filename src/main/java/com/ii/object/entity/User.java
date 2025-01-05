@@ -74,8 +74,9 @@ public class User extends Base {
 	@OneToOne(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
 	private PasswordAuth passwordAuth;
 	
-	@OneToOne(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
-	private RefreshToken refreshToken;
+	@OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
+	@Builder.Default
+	private List<RefreshToken> refreshTokens = new ArrayList<RefreshToken>();
 	
 	@OneToOne(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
 	private PasswordHistory passwordHistory;
@@ -90,8 +91,8 @@ public class User extends Base {
 		passwordAuth.setUser(this);
 	}
 	
-	public void setRefreshToken(RefreshToken refreshToken) {
-		this.refreshToken = refreshToken;
+	public void addRefreshToken(RefreshToken refreshToken) {
+		this.refreshTokens.add(refreshToken);
 		refreshToken.setUser(this);
 	}
 	

@@ -93,10 +93,10 @@ public class AuthController {
 	// 로그아웃
 	@GetMapping("/logout")
 	@PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
-	public ResponseEntity<Response> logout() {
+	public ResponseEntity<Response> logout(HttpServletRequest request) {
 		
 		try {
-			authService.logout();
+			authService.logout(request);
 			return ResponseUtil.build(HttpStatus.OK, "Log out complete", null, null, null);
 			// Access & Refresh Token 값을 null로 주어서 클라이언트의 Authorization Header와 Cookie 삭제
 		} catch (BadRequestException e) {

@@ -79,12 +79,12 @@ public class AuthService {
 				.hashedPassword(hashedPassword)
 				.build();	// 패스워드 기록 생성 후 유저 관계 주입
 		
-		RefreshToken refreshToken = RefreshToken.builder()
-				.user(user)
-				.build();	// Refresh Token 정보 생성 후 유저 관계 주입
+//		RefreshToken refreshToken = RefreshToken.builder()
+//				.user(user)
+//				.build();	// Refresh Token 정보 생성 후 유저 관계 주입
 		
 		user.setMailAuth(mailAuth);	// 상호 관계 설정
-		user.setRefreshToken(refreshToken);
+//		user.setRefreshToken(refreshToken);
 		user.setPasswordHistory(passwordHistory);
 		
 		try {
@@ -127,16 +127,22 @@ public class AuthService {
 		if(!user.getIsMailAuthed()) throw new BadCredentialsException("메일 인증 좀");	// 메일 인증 미완료 시 로그인 불가
 		if(!passwordEncoder.matches(loginReqDTO.getPassword(), user.getHashedPassword())) throw new BadCredentialsException("비밀번호 틀림 ㅅㄱ");
 		
-		String accessTokenString = tokenProvider.generateAccessToken(user.getUsername(), user.getRoles());	// username과 권한(=Role)로 Access Token 생성
+		UUID deviceId = UUID.randomUUID();
+		
+		String accessTokenString = tokenProvider.generateAccessToken(user.getUsername(), user.getRoles(), deviceId);	// username과 권한(=Role)로 Access Token 생성
 		UsernamePasswordAuthenticationToken accessAuthenticationToken = tokenProvider.getAuthentication(accessTokenString);
 		// authenticationToken 검증, 검증 성공시 role이 추가된 authentication 반환
 		SecurityContextHolder.getContext().setAuthentication(accessAuthenticationToken);
 		//SecurityContext에 인증정보 저장
 		
-		String refreshTokenString = tokenProvider.generateRefreshToken(user.getUsername());	// Refresh Token 생성
+		String refreshTokenString = tokenProvider.generateRefreshToken(user.getUsername(), deviceId);	// Refresh Token 생성
 		
-		RefreshToken refreshToken = user.getRefreshToken();
-		refreshToken.setToken(refreshTokenString);
+		RefreshToken refreshToken = RefreshToken.builder()
+				.user(user)
+				.token(refreshTokenString)
+				.deviceId(deviceId)
+				.build();
+		
 		refreshTokenRepository.save(refreshToken);	// Refresh Token 갱신 및 저장
 		
 		return Pair.of(accessTokenString, refreshTokenString);	// Access Token, Refresh Token의 쌍 반환
@@ -152,6 +158,7 @@ public class AuthService {
 		} catch(ExpiredJwtException e) {	
 			// 다만 Access Token이 만료된 것에 대해서는 정당한 요청으로 봄
 		}
+		UUID accessDeviceId = tokenProvider.getDeviceId(oldAccessTokenString);	// access token에 저장된 device id를 가져옴
 		
 		String refreshTokenString = null;
 		Cookie[] cookies = request.getCookies();
@@ -159,23 +166,29 @@ public class AuthService {
             if (cookie.getName().equals("Refresh")) refreshTokenString = cookie.getValue();	// 쿠키에 저장된 Refresh Token을 가져옴
         }
 		if(refreshTokenString == null) throw new BadRequestException("empty refresh token"); // Refresh Token이 없을 경우 예외 발생
-		if(tokenProvider.isExpired(refreshTokenString)) throw new BadRequestException("expired refresh token"); // Refresh Token이 만료된 경우 예외 발생
+		if(tokenProvider.isExpired(refreshTokenString)) {
+			refreshTokenRepository.deleteByToken(refreshTokenString);
+			throw new BadRequestException("expired refresh token"); // Refresh Token이 만료된 경우 Refresh Token 저장소에서 삭제하고 예외 발생
+		}
 		
-		if(!refreshTokenRepository.existsByToken(refreshTokenString)) throw new BadRequestException("invalid refresh token");
+		RefreshToken refreshToken = refreshTokenRepository.findByToken(refreshTokenString);
+		if(refreshToken == null) throw new BadRequestException("invalid refresh token");
 		 // Refresh Token이 저장되어 관리되고 있는 토큰이 아니라면 예외 발생
 		
 		UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = tokenProvider.getAuthentication(refreshTokenString);
 		// Refresh Token에서 인증 정보 가져옴
-		String username = usernamePasswordAuthenticationToken.getName();
-		User user = userRepository.findByUsername(username);	// 인증정보 속 username으로 user 조회
+		UUID refreshDeviceId = tokenProvider.getDeviceId(refreshTokenString);	// refresh token에 저장된 device id를 가져옴
+		if(!refreshDeviceId.toString().equals(accessDeviceId.toString()))
+			throw new BadRequestException("access token does not match refresh token");	// access token과 refresh token이 쌍을 이루는지 검증
 		
-		String accessTokenString = tokenProvider.generateAccessToken(user.getUsername(), user.getRoles());	// 조회된 user 정보를 기반으로 AccessToken 재발급
+		User user = refreshToken.getUser();
+		
+		String accessTokenString = tokenProvider.generateAccessToken(user.getUsername(), user.getRoles(), refreshDeviceId);	// 조회된 user 정보를 기반으로 AccessToken 재발급
 		UsernamePasswordAuthenticationToken accessAuthenticationToken = tokenProvider.getAuthentication(accessTokenString);
 		SecurityContextHolder.getContext().setAuthentication(accessAuthenticationToken);	// 갱신된 인증정보 저장
 		
-		String newRefreshTokenString = tokenProvider.generateRefreshToken(user.getUsername());	// 조회된 user 정보를 기반으로 RefreshToken 재발급
+		String newRefreshTokenString = tokenProvider.generateRefreshToken(user.getUsername(), refreshDeviceId);	// 조회된 user 정보를 기반으로 RefreshToken 재발급
 		
-		RefreshToken refreshToken = user.getRefreshToken();
 		refreshToken.setToken(newRefreshTokenString);
 		refreshTokenRepository.save(refreshToken);	// 갱신된 Refresh Token db에 저장
 		
@@ -184,10 +197,10 @@ public class AuthService {
 	
 	// 로그아웃
 	@Transactional
-	public void logout() throws BadRequestException {
-		String username = SecurityUtil.getCurrentUsername().orElseThrow(() -> new BadRequestException("로그인 정보 없음"));
-		// 로그인 되지 않은 사용자면 예외 발생
-		RefreshToken refreshToken = refreshTokenRepository.findByuserUsername(username);	// 로그인된 사용자로 Refresh Token 식별
+	public void logout(HttpServletRequest request) throws BadRequestException {
+		String accessTokenString = SecurityUtil.resolveToken(request);
+		UUID deviceId = tokenProvider.getDeviceId(accessTokenString);
+		RefreshToken refreshToken = refreshTokenRepository.findByDeviceId(deviceId);	// access token의 device id를 통해 Refresh Token 식별
 		refreshToken.setToken("");
 		refreshTokenRepository.save(refreshToken);	// 현재 Refresh Token 무효 처리
 	}
