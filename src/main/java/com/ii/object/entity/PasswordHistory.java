@@ -1,5 +1,6 @@
 package com.ii.object.entity;
 
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import org.hibernate.annotations.OnDelete;
@@ -21,11 +22,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Entity(name = "password_history")
 public class PasswordHistory extends Base{
 	
@@ -33,10 +35,6 @@ public class PasswordHistory extends Base{
 	 * 비밀번호 변경 기록을 남기는 테이블
 	 * 최근 사용된 비밀번호 1건만을 기록함
 	 */
-
-	@Id
-	@GeneratedValue(strategy = GenerationType.UUID)
-	private UUID id;
 	
 	@OneToOne
 	@JoinColumn(name = "user_id")

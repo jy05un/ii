@@ -1,5 +1,6 @@
 package com.ii.object.entity;
 
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import org.hibernate.annotations.JdbcType;
@@ -20,17 +21,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Entity(name = "broadcast_history")
 public class BroadcastHistory extends Base {
-
-	@Id
-	@Builder.Default
-	private UUID id = UUID.randomUUID();
 	
 	@Enumerated(EnumType.STRING)
 	private BroadcastStatus status;

@@ -1,6 +1,7 @@
 package com.ii.object.entity;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.UUID;
 
@@ -36,10 +37,6 @@ import lombok.Setter;
 @Entity(name = "yt_post")
 public class YtPost extends Base {
 
-	@Id
-	@Builder.Default
-	private UUID id = UUID.randomUUID();
-
 	@Column(columnDefinition = "TEXT")
 	private String url;
 	
@@ -47,7 +44,7 @@ public class YtPost extends Base {
 	private String content;
 	
 	@Column(name = "uploaded_at", columnDefinition= "TIMESTAMP WITH TIME ZONE")
-	private LocalDateTime uploadedAt;
+	private OffsetDateTime uploadedAt;
 	
 	@ManyToOne
 	@JoinColumn(name = "streamer_id")

@@ -1,6 +1,7 @@
 package com.ii.object.entity;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import org.hibernate.annotations.JdbcType;
@@ -23,17 +24,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Entity(name = "chat_record")
 public class ChatRecord extends Base {
-
-	@Id
-	@Builder.Default
-	private UUID id = UUID.randomUUID();
 
 	@Column(columnDefinition = "TEXT")
 	private String url;
@@ -43,7 +41,7 @@ public class ChatRecord extends Base {
 	private ChatType chatType;
 	
 	@Column(name = "sent_at", columnDefinition= "TIMESTAMP WITH TIME ZONE")
-	private LocalDateTime sentAt;
+	private OffsetDateTime sentAt;
 	
 	@ManyToOne
 	@JoinColumn(name = "streamer_id")

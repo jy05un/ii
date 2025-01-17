@@ -1,6 +1,7 @@
 package com.ii.object.entity;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import org.hibernate.annotations.JdbcType;
@@ -22,17 +23,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Entity(name = "soop_post")
 public class SoopPost extends Base {
-
-	@Id
-	@Builder.Default
-	private UUID id = UUID.randomUUID();
 
 	@Column(name = "post_id", unique = true)
 	private String postId;
@@ -47,7 +45,7 @@ public class SoopPost extends Base {
 	private String content;
 	
 	@Column(name = "uploaded_at", columnDefinition= "TIMESTAMP WITH TIME ZONE")
-	private LocalDateTime uploadedAt;
+	private OffsetDateTime uploadedAt;
 	
 	@ManyToOne
 	@JoinColumn(name = "streamer_id")

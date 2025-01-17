@@ -1,5 +1,6 @@
 package com.ii.object.entity;
 
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import org.hibernate.annotations.OnDelete;
@@ -15,21 +16,18 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Entity(name = "mail_auth")
 public class MailAuth extends Base{
 	
 	/*
 	 * 회원가입 시 메일 인증 과정 중 인증코드를 저장하기 위한 테이블
 	 */
-
-	@Id
-	@Builder.Default
-	private UUID id = UUID.randomUUID();
 	
 	@OneToOne
 	@JoinColumn(name = "user_id")
