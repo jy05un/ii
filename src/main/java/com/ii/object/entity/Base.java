@@ -10,6 +10,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 import com.ii.object.model.enums.BroadcastStatus;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import lombok.AllArgsConstructor;
@@ -30,8 +32,8 @@ public abstract class Base {
 	 * created_at과 updated_at 필드를 남김
 	 */
 	@Id
-	@Builder.Default
-	private UUID id = UUID.randomUUID();
+	@GeneratedValue(strategy = GenerationType.UUID)
+	private UUID id;
 
     @Column(updatable = false, columnDefinition= "TIMESTAMP WITH TIME ZONE")
     @CreationTimestamp
