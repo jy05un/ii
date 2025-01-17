@@ -19,9 +19,6 @@ spring:
     driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
     hikari:
       maximum-pool-size: '4'
-    username: postgres
-    password: MrCroc1234
-    url: jdbc:log4jdbc:postgresql://127.0.0.1:5432/ii
   security:
     oauth2:
       client:
