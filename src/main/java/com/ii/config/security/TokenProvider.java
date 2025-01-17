@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.InitializingBean;
@@ -31,6 +32,8 @@ import io.jsonwebtoken.security.Keys;
 public class TokenProvider implements InitializingBean {
 	
 	private static String ROLE_KEY = "Role";	// Jwt 토큰에서 권한(=Role)을 가져오기 위한 KEY
+	private static String TYPE_KEY = "Type";	// Jwt 토큰에서 타입을 가져오기 위한 KEY
+	private static String DEVICE_ID_KEY = "Device_Id";
     private final String secret;	// Jwt 암호화 코드
     private final long accessValidityInMilliseconds;	// AccessToken 유효기간 (ms단위)
     private final int refreshValidityInMilliseconds;	// RefreshToken 유효기간 (ms단위)
@@ -58,37 +61,37 @@ public class TokenProvider implements InitializingBean {
 	 * Access Token을 생성함
 	 * @param roleString (ex. "ADMIN,USER")
 	 */
-	public String generateAccessToken(String username, String roleString) {
+	public String generateAccessToken(String username, String roleString, UUID deviceId) {
 		long now = (new Date()).getTime();
 		Date validity = new Date(now + this.accessValidityInMilliseconds);	// 현재 시간을 기준으로 Access Token 만료시점을 설정함
-		return this.generateToken(TokenType.ACCESS, username, roleString, validity);	// ACCESS 타입의 토큰을 생성함
+		
+		return Jwts.builder()
+                .setSubject(username)	// subject = username
+                .claim(TYPE_KEY, TokenType.ACCESS)
+                .claim(ROLE_KEY, roleString) // 권한(=Role) 저장
+                .claim(DEVICE_ID_KEY, deviceId)	// 다중 로그인 구별을 위한 디바이스 아이디
+                .setIssuedAt(new Date())	// 토큰 발행 시점
+                .signWith(key, SignatureAlgorithm.HS512) // 사용할 암호화 알고리즘과 서명할 때 사용할 비밀키를 인자로 넘겨 서명
+                .setExpiration(validity) // 토큰 만료 시점을 설정함
+                .compact();
 	}
 	
 	/**
 	 * Refresh Token을 생성
 	 */
-	public String generateRefreshToken(String username) {
+	public String generateRefreshToken(String username, UUID deviceId) {
 		long now = (new Date()).getTime();
 		Date validity = new Date(now + this.refreshValidityInMilliseconds);	// 현재 시간을 기준으로 Refresh Token 만료시점을 설정함
-		return this.generateToken(TokenType.REFRESH, username, "", validity);	// REFRESH 타입의 토큰을 생성함
-	}
-	
-	/**
-	 * 실제 토튼 생성 로직
-	 * @param tokenType (ACCESS or REFRESH)
-	 * @param validity	토큰 만료 시점
-	 * @return
-	 */
-	public String generateToken(TokenType tokenType, String username, String roleString, Date validity) {
-
-        return Jwts.builder()
+		return Jwts.builder()
                 .setSubject(username)	// subject = username
-                .claim(ROLE_KEY, roleString) // 권한(=Role) 저장
+                .claim(TYPE_KEY, TokenType.REFRESH)
+                .claim(ROLE_KEY, "") // 권한 검증은 필요하지 않음
+                .claim(DEVICE_ID_KEY, deviceId)	// 다중 로그인 구별을 위한 디바이스 아이디
                 .setIssuedAt(new Date())	// 토큰 발행 시점
                 .signWith(key, SignatureAlgorithm.HS512) // 사용할 암호화 알고리즘과 서명할 때 사용할 비밀키를 인자로 넘겨 서명
                 .setExpiration(validity) // 토큰 만료 시점을 설정함
                 .compact();
-    }
+	}
 	
 	/*
 	 * 토큰에서 인증정보를 가져옴
@@ -146,6 +149,10 @@ public class TokenProvider implements InitializingBean {
 		} catch (ExpiredJwtException e) {
 			return true;
 		}
+	}
+	
+	public UUID getDeviceId(String token) {
+		return UUID.fromString(Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().get(DEVICE_ID_KEY).toString());
 	}
 	
 }
