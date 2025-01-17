@@ -45,6 +45,9 @@ public class Post {
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private Streamer streamer;
 	
+	@Column(name = "uploaded_at", columnDefinition= "TIMESTAMP WITH TIME ZONE")
+	private LocalDateTime uploadedAt;
+	
 	@OneToOne
 	@JoinColumn(name = "cafe_post_id")
 	@OnDelete(action = OnDeleteAction.CASCADE)

@@ -42,7 +42,7 @@ public class CafePost extends Base {
 	@Column(columnDefinition = "TEXT")
 	private String content;
 	
-	@Column(name = "uploaded_at")
+	@Column(name = "uploaded_at", columnDefinition= "TIMESTAMP WITH TIME ZONE")
 	private LocalDateTime uploadedAt;
 	
 	@ManyToOne

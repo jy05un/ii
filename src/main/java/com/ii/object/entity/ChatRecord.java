@@ -42,7 +42,7 @@ public class ChatRecord extends Base {
 	@Column(name = "chat_type")
 	private ChatType chatType;
 	
-	@Column(name = "sent_at")
+	@Column(name = "sent_at", columnDefinition= "TIMESTAMP WITH TIME ZONE")
 	private LocalDateTime sentAt;
 	
 	@ManyToOne
