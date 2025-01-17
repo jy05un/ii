@@ -1,6 +1,7 @@
 package com.ii.object.entity;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.UUID;
 
@@ -25,17 +26,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Entity(name = "post")
-public class Post {
-
-	@Id
-	@Builder.Default
-	private UUID id = UUID.randomUUID();
+public class Post extends Base {
 	
 	@Enumerated(EnumType.STRING)
 	private PostType type;
@@ -46,7 +44,7 @@ public class Post {
 	private Streamer streamer;
 	
 	@Column(name = "uploaded_at", columnDefinition= "TIMESTAMP WITH TIME ZONE")
-	private LocalDateTime uploadedAt;
+	private OffsetDateTime uploadedAt;
 	
 	@OneToOne
 	@JoinColumn(name = "cafe_post_id")

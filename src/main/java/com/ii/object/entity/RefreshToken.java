@@ -1,5 +1,6 @@
 package com.ii.object.entity;
 
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import org.hibernate.annotations.OnDelete;
@@ -18,17 +19,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Entity(name = "refresh_token")
 public class RefreshToken extends Base {
-	
-	@Id
-	@GeneratedValue(strategy = GenerationType.UUID)
-	private UUID id;
 	
 	@ManyToOne
 	@JoinColumn(name = "user_id")

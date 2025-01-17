@@ -1,5 +1,6 @@
 package com.ii.object.entity;
 
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import org.hibernate.annotations.OnDelete;
@@ -17,21 +18,18 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @Entity(name = "password_auth")
 public class PasswordAuth extends Base{
 	
 	/*
 	 * 비밀번호 변경 시 사용되는 인증코드와 새로운 비밀번호를 저장하기 위한 테이블
 	 */
-
-	@Id
-	@GeneratedValue(strategy = GenerationType.UUID)
-	private UUID id;
 	
 	@OneToOne
 	@JoinColumn(name = "user_id")
