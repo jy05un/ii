@@ -12,7 +12,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: false
     database: postgresql
   datasource:
@@ -32,8 +32,8 @@ spring:
     name: ii
 
 app:
-  base-uri: http://localhost:8080
-  web-uri: http://52.141.48.164:3000
+  base-uri: http://4.230.153.92:8080
+  web-uri: http://4.230.153.92
 
 logging:
   config: classpath:log4j2.xml
