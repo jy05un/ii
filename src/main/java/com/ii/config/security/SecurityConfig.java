@@ -89,7 +89,7 @@ public class SecurityConfig {
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(Arrays.asList(webUrl, "http://localhost:3000/", "http://test.hlemont.xyz/", "http://test.hlemont.xyz:3000/", "http://144.24.79.146:3000/", "http://test.hlemont.xyz:80/"));
+        config.setAllowedOrigins(Arrays.asList(webUrl, "http://localhost:3000/", "https://test.hlemont.xyz/"));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(Arrays.asList("*"));
         config.setExposedHeaders(Arrays.asList("X-AUTH-ACCESS-TOKEN", "Authorization"));
