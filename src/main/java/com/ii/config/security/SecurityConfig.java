@@ -92,7 +92,7 @@ public class SecurityConfig {
         config.setAllowedOrigins(Arrays.asList(webUrl, "http://localhost:3000/", "http://test.hlemont.xyz/", "http://test.hlemont.xyz:3000/", "http://144.24.79.146:3000/", "http://test.hlemont.xyz:80/"));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(Arrays.asList("*"));
-        config.setExposedHeaders(Arrays.asList("X-AUTH-ACCESS-TOKEN"));
+        config.setExposedHeaders(Arrays.asList("X-AUTH-ACCESS-TOKEN", "Authorization"));
         config.setAllowCredentials(true);
 
         source.registerCorsConfiguration("/**", config);
