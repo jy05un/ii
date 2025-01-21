@@ -7,12 +7,10 @@
 #### 프론트엔드: React
 #### 데이터처리 및 인공지능: Python
 #### DB: PostGreSQL
-#### 웹서버: Apache Tomcat
-#### 빌드업: 우선 Gradle Kotlin, 향후 AWS CodePipeline 적용 예정
+#### 빌드업: 우선 Gradle Kotlin, Azure CodePipeline 적용 완료
 
 # 사용 버전
 #### JAVA: Openjdk 21
 #### Spring Boot: 3.4.1
-#### Apache Tomcat: 10.1.34
 #### PostGreSQL: 16
 #### Gradle: 8
