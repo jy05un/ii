@@ -32,8 +32,8 @@ spring:
     name: ii
 
 app:
-  base-uri: http://4.230.153.92:8080
-  web-uri: http://4.230.153.92
+  base-uri: https://was.hlemont.xyz:8443
+  web-uri: https://was.hlemont.xyz
 
 logging:
   config: classpath:log4j2.xml
