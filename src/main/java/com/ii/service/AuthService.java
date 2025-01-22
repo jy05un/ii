@@ -151,14 +151,6 @@ public class AuthService {
 	// Refresh Token을 이용하여 Access Token 재발급
 	public Pair<String, String> refresh(HttpServletRequest request) throws BadRequestException, SignatureException, ExpiredJwtException {
 		
-		String oldAccessTokenString = SecurityUtil.resolveToken(request);	// 요청 헤더에서 Access Token을 가져옴
-		if(!StringUtils.hasText(oldAccessTokenString)) throw new BadRequestException("no access token");	// Access Token 없이 요청할 시 예외 발생
-		try {	// Access Token이 옳게 서명되지 않았거나 유효하지 않은 경우를 판단하기 위함
-			UsernamePasswordAuthenticationToken oldAccessAuthenticationToken = tokenProvider.getAuthentication(oldAccessTokenString);
-		} catch(ExpiredJwtException e) {	
-			// 다만 Access Token이 만료된 것에 대해서는 정당한 요청으로 봄
-		}
-		UUID accessDeviceId = tokenProvider.getDeviceId(oldAccessTokenString);	// access token에 저장된 device id를 가져옴
 		
 		String refreshTokenString = null;
 		Cookie[] cookies = request.getCookies();
@@ -178,8 +170,6 @@ public class AuthService {
 		UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = tokenProvider.getAuthentication(refreshTokenString);
 		// Refresh Token에서 인증 정보 가져옴
 		UUID refreshDeviceId = tokenProvider.getDeviceId(refreshTokenString);	// refresh token에 저장된 device id를 가져옴
-		if(!refreshDeviceId.toString().equals(accessDeviceId.toString()))
-			throw new BadRequestException("access token does not match refresh token");	// access token과 refresh token이 쌍을 이루는지 검증
 		
 		User user = refreshToken.getUser();
 		
