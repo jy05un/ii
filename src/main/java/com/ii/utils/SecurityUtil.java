@@ -93,7 +93,7 @@ public class SecurityUtil {
 	public static String parseRefreshCookie(String refreshToken, int validityInDays) {
 		ResponseCookie cookie = ResponseCookie
 				.from("Refresh", refreshToken)
-				.domain("localhost")
+				.domain("hlement.xyz")
 				.httpOnly(true)
 				.secure(false)
 				// .secure(true)
