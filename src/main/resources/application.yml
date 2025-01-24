@@ -1,48 +1,11 @@
-spring:
-  mail:
-    username: ii.con.auth@gmail.com
-    port: '587'
-    properties:
-      mail:
-        smtp:
-          starttls:
-            enable: 'true'
-          auth: 'true'
-          timeout: '5000'
-    host: smtp.gmail.com
-    password: efyj cuuv ghlq mrmh
-  datasource:
-    username: ii_admin
-    password: tkdlqjek!2
-    url: jdbc:log4jdbc:postgresql://ii-database.postgres.database.azure.com:5432/ii
-  security:
-    oauth2:
-      client:
-        registration:
-          naver:
-            client-name: Naver
-            client-id: HyK_GhKz_HDcj4U7EpHi
-            client-secret: Wi5HRMnXfQ
-            # redirect-uri: http://52.141.48.164/login/oauth2/code/naver
-            redirect-uri: https://web.hlemont.xyz/login/oauth2/code/naver
-            authorization-grant-type: authorization_code
-
-jwt:
-  access-validity-in-seconds: '300'
-  refresh-validity-in-days: '15'
-  secret: HelloThisIsJwtSecretThisIsReasonWhyYouShouldNotUploadThisFileToGithubHelloThisIsJwtSecretThisIsReasonWhyYouShouldNotUploadThisFileToGithubHelloThisIsJwtSecretThisIsReasonWhyYouShouldNotUploadThisFileToGithubHelloThisIsJwtSecretThisIsReasonWhyYouShouldNotUploadThisFileToGithubHelloThisIsJwtSecretThisIsReasonWhyYouShouldNotUploadThisFileToGithub
-
 server:
   server:
   port: 443 # HTTPS 포트 설정
   ssl:
     enabled: true
-    key-store: classpath:~/hlemont.xyz.pfx # .pfx 인증서 경로
+    key-store: classpath:ssl/hlemont.xyz.pfx # .pfx 인증서 경로
     key-store-password: tkdlqjek!2 # 인증서 비밀번호
     key-store-type: PKCS12 # 인증서 형식
-azureuser@vm-be:~/ii/src/main/resources$ ^C
-azureuser@vm-be:~/ii/src/main/resources$ cat application.yml
-server:
   servlet:
     context-path: /api
 
