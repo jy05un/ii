@@ -7,7 +7,7 @@ BUILD_DIR = ./build/libs
 NOHUP_FILE = nohup.out
 
 # 애플리케이션 실행에 사용하는 포트 (예: 8080)
-PORT = 8080
+PORT = 443
 
 # 기본 타겟
 all: build kill run logs
