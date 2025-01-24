@@ -38,6 +38,9 @@ public class CafePost extends Base {
 	private String title;
 	
 	@Column(columnDefinition = "TEXT")
+	private String url;
+	
+	@Column(columnDefinition = "TEXT")
 	private String content;
 	
 	@Column(name = "uploaded_at", columnDefinition= "TIMESTAMP WITH TIME ZONE")

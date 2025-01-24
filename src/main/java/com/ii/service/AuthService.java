@@ -151,9 +151,9 @@ public class AuthService {
 	// Refresh Token을 이용하여 Access Token 재발급
 	public Pair<String, String> refresh(HttpServletRequest request) throws BadRequestException, SignatureException, ExpiredJwtException {
 		
-		
 		String refreshTokenString = null;
 		Cookie[] cookies = request.getCookies();
+		if(cookies == null) throw new BadRequestException("empty refresh token"); // Refresh Token이 없을 경우 예외 발생
 		for (Cookie cookie:cookies){
             if (cookie.getName().equals("Refresh")) refreshTokenString = cookie.getValue();	// 쿠키에 저장된 Refresh Token을 가져옴
         }
