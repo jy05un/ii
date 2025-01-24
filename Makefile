@@ -15,6 +15,7 @@ all: build kill run logs
 # Gradle clean build
 build:
         @echo "Building the project with Gradle..."
+        chmod +x gradlew
         ./gradlew clean build
 
 # 포트를 점유한 프로세스 종료
