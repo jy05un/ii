@@ -1,6 +1,14 @@
 server:
+  server:
+  port: 443 # HTTPS 포트 설정
+  ssl:
+    enabled: true
+    key-store: classpath:ssl/hlemont.xyz.pfx # .pfx 인증서 경로
+    key-store-password: tkdlqjek!2 # 인증서 비밀번호
+    key-store-type: PKCS12 # 인증서 형식
   servlet:
     context-path: /api
+
 spring:
   config:
     import:
@@ -32,8 +40,8 @@ spring:
     name: ii
 
 app:
-  base-uri: https://was.hlemont.xyz:8443
-  web-uri: https://was.hlemont.xyz
+  base-uri: https://api.hlemont.xyz
+  web-uri: https://web.hlemont.xyz
 
 logging:
   config: classpath:log4j2.xml
