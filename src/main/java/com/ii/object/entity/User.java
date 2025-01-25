@@ -1,6 +1,5 @@
 package com.ii.object.entity;
 
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -9,13 +8,8 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.OrderBy;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -79,6 +73,10 @@ public class User extends Base {
 	@OneToOne(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
 	private PasswordHistory passwordHistory;
 	
+	@OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
+	@Builder.Default
+	private List<Bookmark> bookmarks = new ArrayList<Bookmark>();
+	
 	public void setMailAuth(MailAuth mailAuth) {
 		this.mailAuth = mailAuth;
 		mailAuth.setUser(this);
@@ -97,6 +95,11 @@ public class User extends Base {
 	public void setPasswordHistory(PasswordHistory passwordHistory) {
 		this.passwordHistory = passwordHistory;
 		passwordHistory.setUser(this);
+	}
+	
+	public void addBookmark(Bookmark bookmark) {
+		this.bookmarks.add(bookmark);
+		bookmark.setUser(this);
 	}
 	
 }

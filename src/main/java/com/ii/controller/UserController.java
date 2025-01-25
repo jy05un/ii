@@ -25,28 +25,27 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/users")
 public class UserController {
 	
 	private final IUserRepository userRepository;
 	private final UserService userService;
 
 	// 테스트용
-	@GetMapping("/user")
+	@GetMapping("/me")
 	@PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
 	public ResponseEntity<Response> getUser() {
-		User me = userRepository.findByUsername(SecurityUtil.getCurrentUsername()
-				.orElseThrow(() -> new IllegalArgumentException("로그인 정보 없는데 어캐 접근했음?")));
-		UserResDTO userResDTO = UserResDTO.builder()
-				.id(me.getId())
-				.username(me.getUsername())
-				.email(me.getEmail())
-				.role(me.getRoles())
-				.build();
-		return ResponseUtil.build(HttpStatus.OK, "get user", userResDTO);
+		
+		try {
+			UserResDTO userResDTO = userService.getUserMe();
+			return ResponseUtil.build(HttpStatus.OK, "get user", userResDTO);
+		} catch (IllegalArgumentException e) {
+			return ResponseUtil.build(HttpStatus.NOT_FOUND, "user not found", null);
+		}
+		
 	}
 	
-	@GetMapping("/users/exists/{username}")
+	@GetMapping("/exists/{username}")
 	public ResponseEntity<Response> getIsUsernameExist(@PathVariable("username") String username) {
 		
 		Boolean isExist = userRepository.existsByUsername(username);
@@ -59,7 +58,7 @@ public class UserController {
 		
 	}
 	
-	@PutMapping("/user/nickname")
+	@PutMapping("/me/nickname")
 	@PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
 	public ResponseEntity<Response> updateUserNickname(@RequestBody @Valid UpdateUserNicknameReqDTO updateUserNicknameReqDTO) {
 		
