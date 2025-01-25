@@ -1,28 +1,25 @@
 package com.ii.object.entity;
 
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.util.Map;
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import com.ii.object.model.enums.PostType;
-import com.ii.object.model.enums.RefType;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -70,5 +67,19 @@ public class Post extends Base {
 	@JoinColumn(name = "yt_post_id")
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private YtPost ytPost;
+	
+	@OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
+	private List<BookmarkPost> bookmarks = new ArrayList<BookmarkPost>();
+	
+	public Object getPostObject() {
+		Object data = switch (this.getType()) {
+			case PostType.Cafe		-> this.getCafePost();
+			case PostType.Soop		-> this.getSoopPost();
+			case PostType.X 		-> this.getXPost();
+			case PostType.Instagram	-> this.getIgPost();
+			default 				-> throw new IllegalArgumentException("Unexpected value: " + this.getType());
+		};
+		return data;
+	}
 	
 }

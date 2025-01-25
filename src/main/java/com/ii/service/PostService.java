@@ -30,13 +30,7 @@ public class PostService {
 		Post post = postRepository.findById(id)
 				.orElseThrow(() -> new IllegalArgumentException("No post with id " + id.toString()));
 		
-		Object data = switch (post.getType()) {
-			case PostType.Cafe		-> post.getCafePost();
-			case PostType.Soop		-> post.getSoopPost();
-			case PostType.X 		-> post.getXPost();
-			case PostType.Instagram	-> post.getIgPost();
-			default 				-> throw new IllegalArgumentException("Unexpected value: " + post.getType());
-		};
+		Object data = post.getPostObject();
 		
 		return new GetPostResDTO(post.getId(), post.getType(), post.getStreamer(), data);
 		
@@ -61,13 +55,7 @@ public class PostService {
 		}
 		
 		return new GetPostsResDTO(posts.size(), cursor, postTypeList, posts.stream().map(post -> {
-			Object data = switch (post.getType()) {
-				case PostType.Cafe		-> post.getCafePost();
-				case PostType.Soop		-> post.getSoopPost();
-				case PostType.X 		-> post.getXPost();
-				case PostType.Instagram	-> post.getIgPost();
-				default 				-> throw new IllegalArgumentException("Unexpected value: " + post.getType());
-			};
+			Object data = post.getPostObject();
 			return new GetPostResDTO(post.getId(), post.getType(), post.getStreamer(), data);
 		}).collect(Collectors.toList()));
 		
