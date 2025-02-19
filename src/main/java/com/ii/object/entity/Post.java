@@ -69,6 +69,9 @@ public class Post extends Base {
 	private YtPost ytPost;
 	
 	@OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
+	private List<File> files = new ArrayList<File>();
+	
+	@OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
 	private List<BookmarkPost> bookmarks = new ArrayList<BookmarkPost>();
 	
 	public Object getPostObject() {

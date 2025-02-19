@@ -3,6 +3,7 @@ package com.ii.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.coyote.BadRequestException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -17,6 +18,7 @@ import com.ii.object.entity.Post;
 import com.ii.object.entity.User;
 import com.ii.object.model.DTO.GetBookmarkResDTO;
 import com.ii.object.model.DTO.GetBookmarksResDTO;
+import com.ii.object.model.DTO.GetFileResDTO;
 import com.ii.object.model.DTO.GetPostResDTO;
 import com.ii.object.model.DTO.PostBookmarkPostReqDTO;
 import com.ii.object.model.DTO.PostBookmarkReqDTO;
@@ -69,7 +71,10 @@ public class BookmarkService {
 			if(bookmark.getPosts().size() == 0) getPostResDTO = null;
 			else {
 				Post post = bookmark.getPosts().getLast().getPost();
-				getPostResDTO = new GetPostResDTO(post.getId(), post.getType(), post.getStreamer(), post.getPostObject());
+				List<GetFileResDTO> files = post.getFiles().stream().map(file -> {
+					return new GetFileResDTO(file.getId(), file.getName(), file.getMimeType(), file.getSize(), file.getUrl(), file.getFileType());
+				}).collect(Collectors.toList());
+				getPostResDTO = new GetPostResDTO(post.getId(), post.getType(), post.getStreamer(), files, post.getPostObject());
 			}
 			bookmarkSummaries.add(new BookmarkSummary(bookmark.getName(), bookmark.getPosts().size(), getPostResDTO));
 		}
@@ -118,7 +123,10 @@ public class BookmarkService {
 		List<GetPostResDTO> posts = new ArrayList<GetPostResDTO>();
 		for(BookmarkPost bookmarkPost : bookmarkPosts) {
 			Post post = bookmarkPost.getPost();
-			posts.add(new GetPostResDTO(post.getId(), post.getType(), post.getStreamer(), post.getPostObject()));
+			List<GetFileResDTO> files = post.getFiles().stream().map(file -> {
+				return new GetFileResDTO(file.getId(), file.getName(), file.getMimeType(), file.getSize(), file.getUrl(), file.getFileType());
+			}).collect(Collectors.toList());
+			posts.add(new GetPostResDTO(post.getId(), post.getType(), post.getStreamer(), files, post.getPostObject()));
 		}
 		
 		return new GetBookmarkResDTO(bookmark.getId(), bookmark.getName(), posts.size(), posts);
