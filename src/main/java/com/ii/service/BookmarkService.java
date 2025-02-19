@@ -13,9 +13,9 @@ import org.springframework.stereotype.Service;
 
 import com.ii.object.entity.Bookmark;
 import com.ii.object.entity.BookmarkPost;
-import com.ii.object.entity.BookmarkSummary;
 import com.ii.object.entity.Post;
 import com.ii.object.entity.User;
+import com.ii.object.model.DTO.BookmarkSummary;
 import com.ii.object.model.DTO.GetBookmarkResDTO;
 import com.ii.object.model.DTO.GetBookmarksResDTO;
 import com.ii.object.model.DTO.GetFileResDTO;
@@ -76,7 +76,7 @@ public class BookmarkService {
 				}).collect(Collectors.toList());
 				getPostResDTO = new GetPostResDTO(post.getId(), post.getType(), post.getStreamer(), files, post.getPostObject());
 			}
-			bookmarkSummaries.add(new BookmarkSummary(bookmark.getName(), bookmark.getPosts().size(), getPostResDTO));
+			bookmarkSummaries.add(new BookmarkSummary(bookmark.getId(), bookmark.getName(), bookmark.getPosts().size(), getPostResDTO));
 		}
 		
 		return new GetBookmarksResDTO(bookmarkSummaries, bookmarkSummaries.size());

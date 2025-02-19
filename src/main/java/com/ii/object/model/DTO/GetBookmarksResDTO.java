@@ -3,8 +3,6 @@ package com.ii.object.model.DTO;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.ii.object.entity.BookmarkSummary;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
