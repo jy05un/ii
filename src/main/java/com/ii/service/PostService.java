@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.ii.object.entity.Base;
 import com.ii.object.entity.Post;
+import com.ii.object.model.DTO.GetFileResDTO;
 import com.ii.object.model.DTO.GetPostResDTO;
 import com.ii.object.model.DTO.GetPostsResDTO;
 import com.ii.object.model.enums.PostType;
@@ -31,8 +32,11 @@ public class PostService {
 				.orElseThrow(() -> new IllegalArgumentException("No post with id " + id.toString()));
 		
 		Object data = post.getPostObject();
+		List<GetFileResDTO> files = post.getFiles().stream().map(file -> {
+			return new GetFileResDTO(file.getId(), file.getName(), file.getMimeType(), file.getSize(), file.getUrl(), file.getFileType());
+		}).collect(Collectors.toList());
 		
-		return new GetPostResDTO(post.getId(), post.getType(), post.getStreamer(), data);
+		return new GetPostResDTO(post.getId(), post.getType(), post.getStreamer(), files, data);
 		
 	}
 	
@@ -56,7 +60,10 @@ public class PostService {
 		
 		return new GetPostsResDTO(posts.size(), cursor, postTypeList, posts.stream().map(post -> {
 			Object data = post.getPostObject();
-			return new GetPostResDTO(post.getId(), post.getType(), post.getStreamer(), data);
+			List<GetFileResDTO> files = post.getFiles().stream().map(file -> {
+				return new GetFileResDTO(file.getId(), file.getName(), file.getMimeType(), file.getSize(), file.getUrl(), file.getFileType());
+			}).collect(Collectors.toList());
+			return new GetPostResDTO(post.getId(), post.getType(), post.getStreamer(), files, data);
 		}).collect(Collectors.toList()));
 		
 	}

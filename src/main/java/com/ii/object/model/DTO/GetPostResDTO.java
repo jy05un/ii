@@ -1,5 +1,6 @@
 package com.ii.object.model.DTO;
 
+import java.util.List;
 import java.util.UUID;
 
 import com.ii.object.entity.Streamer;
@@ -20,6 +21,7 @@ public class GetPostResDTO {
 	private UUID id;
 	private PostType type;
 	private Streamer streamer;
+	private List<GetFileResDTO> files;
 	private Object data;
 	
 
